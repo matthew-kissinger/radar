@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, session
+from flask import Flask, jsonify, request, render_template, send_file, session, Response, redirect, url_for
 import openai
 import requests
 import tiktoken
@@ -11,6 +11,7 @@ import urllib.parse
 from bs4 import BeautifulSoup
 import os
 import secrets
+import io
 
 app = Flask(__name__)
 app.secret_key = secrets.token_bytes(16) 
@@ -96,7 +97,7 @@ def autonomous_agent(task, action='next'):
     initial_search_message = create_initial_search_message(task)
     print(f"Initial search message: {initial_search_message}")  # Debug line
     initial_search_response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=initial_search_message
     )
     print("Initial search response from OpenAI:", initial_search_response)  # Print the raw response
@@ -116,13 +117,13 @@ def autonomous_agent(task, action='next'):
                     if response_text == "":
                         task_message = create_task_message(task, page_content)
                         response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
+                            model="gpt-4",
                             messages=task_message
                         )
                     else:
                         report_update_message = create_report_update_message(task, response_text, page_content)
                         response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
+                            model="gpt-4",
                             messages=report_update_message
                         )
                     response_text = response.choices[0].message['content']
@@ -133,10 +134,10 @@ def autonomous_agent(task, action='next'):
     if action == 'finish':
         session.clear() # Clear the session when done
         return response_text, search_history
-    elif action == 'next':
+    elif action == 'next' and not found_content:
         search_message = create_search_message(task, response_text, previous_search_terms)
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=search_message
         )
         initial_search_term = remove_quotes(response.choices[0].message['content'])
@@ -151,44 +152,59 @@ def autonomous_agent(task, action='next'):
     session['response_text'] = response_text
     session['search_history'] = search_history
 
-    return None, None
-
+    return response_text, search_history
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
-    final_response = None
-    search_history = None
-    task = None
-    action = None
-    
     if request.method == 'POST':
         task = request.form.get('task')
         action = request.form.get('action')
-        
+
         if action == 'start':
             print("Starting autonomous research agent...")
-            final_response, search_history = autonomous_agent(task, action=action)
-            print(f"\nFinal response for task: {final_response}")
-            if final_response is not None: # Save final response only when the task is finished
-                with open("final_response.txt", "w") as file:
-                    file.write(final_response)
+            current_response, search_history = autonomous_agent(task, action=action)
+
         elif action == 'next':
             print("Continuing task...")
-            final_response, search_history = autonomous_agent(task, action=action)
-            print(f"\nFinal response for task: {final_response}")
-            if final_response is not None: # Save final response only when the task is finished
-                with open("final_response.txt", "w") as file:
-                    file.write(final_response)
-        elif action == 'finish':
-            print("Finishing task...")
-            final_response, search_history = autonomous_agent(task, action=action)
-            print(f"\nFinal response for task: {final_response}")
-            if final_response is not None: # Save final response only when the task is finished
-                with open("final_response.txt", "w") as file:
-                    file.write(final_response)
-    
-    return render_template('index.html', final_response=final_response, task=task, search_history=search_history, action=action)
+            current_response, search_history = autonomous_agent(task, action=action)
+
+        # Save data in session
+        session['task'] = task  
+        session['response_text'] = current_response  
+        session['search_history'] = search_history 
+
+    else:  # GET
+        task = session.get('task', '')
+        action = session.get('action', '')
+        current_response = session.get('response_text', '')
+        search_history = session.get('search_history', [])
+
+    return render_template('index.html', current_response=current_response, task=task, search_history=search_history, action=action)
+
+@app.route("/download", methods=['GET'])
+def download():
+    # Create a file-like object
+    data = io.BytesIO()
+
+    # Write your final response to this object
+    data.write(session.get('response_text', '').encode())
+
+    data.seek(0)
+
+    return Response(
+        data,
+        headers={
+            "Content-Disposition": "attachment; filename=taskResult.txt"
+        },
+        mimetype='text/plain'
+    )
+
+@app.route("/clear", methods=['GET'])
+def clear_session():
+    session.clear()
+    return redirect(url_for('home'))
 
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
+
