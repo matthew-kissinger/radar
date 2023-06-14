@@ -1,9 +1,9 @@
 # RADAR: Retrieval and Analysis Driven Autonomous Researcher
 
 ## Introduction
-RADAR is an autonomous research agent built with Flask, OpenAI's GPT-3.5-turbo* model, Brave Search, and ScraperAPI. The application performs tasks by generating search terms, searching the web, scraping pages, and producing analytical reports. 
+RADAR is an autonomous research agent built with Flask, OpenAI's GPT-4* model, Brave Search, and ScraperAPI. The application performs tasks by generating search terms, searching the web, scraping pages, and producing analytical reports. 
 
-*Compatible with GPT-4
+*Compatible with GPT-3.5-turbo and GPT-3.5-turbo-16k
 
 ## Setup & Installation
 1. Clone this repository.
