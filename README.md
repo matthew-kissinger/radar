@@ -42,4 +42,4 @@ Reports can be downloaded from the application interface. Each report is saved i
 **Note:** Always use the `.env` file to securely store your API keys and other sensitive information. This file should never be included in the repository.
 
 ## License
-This project is licensed under the terms of the [MIT License](./LICENSE.md).
+This project is licensed under the terms of the [MIT License](./LICENSE).
