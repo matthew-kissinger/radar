@@ -8,7 +8,6 @@ import openai
 import requests
 import tiktoken
 import urllib.parse
-from bs4 import BeautifulSoup
 import os
 import secrets
 import io
@@ -44,7 +43,6 @@ def create_search_message(task, response, previous_search_terms):
         }
     ]
 
-
 def create_task_message(task, content):
     return [
         {
@@ -61,7 +59,6 @@ def create_report_update_message(task, current_report, content):
             "content": f"As an autonomous research agent, your ongoing task is: '{task}'. Your previous response was: '{current_report}'. The current date is {current_date}. Analyze the new content and synthenize the complete report using previous response and new content: '{content}'. Compare the content Structure your response as follows: The updated and complete result of the task, a detailed response with updated findings, and your updated and complete knowledge log. Remember to carry forward this Knowledge Log for future iterations."
         }
     ]
-
 
 def get_page_content(url):
     headers = {"apikey": SCRAPER_API_KEY}
@@ -88,7 +85,6 @@ def get_page_content(url):
     else:
         return None
 
-
 def search_brave(search_term):
     headers = {"Accept": "application/json", "X-Subscription-Token": BRAVE_SEARCH_API_KEY}
     query = urllib.parse.quote(search_term)
@@ -110,20 +106,32 @@ def autonomous_agent(task, action='next'):
     previous_search_terms = session.get('previous_search_terms', [])
     response_text = session.get('response_text', "")
     search_history = session.get('search_history', [])
+    
+    if 'research_started' not in session:
+        # this is the first round
+        session['research_started'] = True
+        initial_search_message = create_initial_search_message(task)
+        initial_search_response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=initial_search_message
+        )
+        search_term = remove_quotes(initial_search_response.choices[0].message['content'])
+    else:
+        # this is a subsequent round
+        search_message = create_search_message(task, response_text, previous_search_terms)
+        search_response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=search_message
+        )
 
-    initial_search_message = create_initial_search_message(task)
-    print(f"Initial search message: {initial_search_message}")
-    initial_search_response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=initial_search_message
-    )
-    print("Initial search response from OpenAI:", initial_search_response)  
-    initial_search_term = remove_quotes(initial_search_response.choices[0].message['content'])
-    print(f"Initial search term: {initial_search_term}")
-    previous_search_terms.append(initial_search_term)
+
+        search_term = remove_quotes(search_response.choices[0].message['content'])
+
+    print(f"Generated search term: {search_term}")
+    previous_search_terms.append(search_term)
 
     found_content = False
-    search_results = search_brave(initial_search_term)
+    search_results = search_brave(search_term)
 
     if search_results and search_results['results']:
         for result in search_results['results']:
@@ -134,13 +142,13 @@ def autonomous_agent(task, action='next'):
                     if response_text == "":
                         task_message = create_task_message(task, page_content)
                         response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
+                            model="gpt-4",
                             messages=task_message
                         )
                     else:
                         report_update_message = create_report_update_message(task, response_text, page_content)
                         response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
+                            model="gpt-4",
                             messages=report_update_message
                         )
                     response_text = response.choices[0].message['content']
@@ -154,14 +162,14 @@ def autonomous_agent(task, action='next'):
     elif action == 'next' and not found_content:
         search_message = create_search_message(task, response_text, previous_search_terms)
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=search_message
         )
-        initial_search_term = remove_quotes(response.choices[0].message['content'])
-        print(f"Generated search term: {initial_search_term}")
-        previous_search_terms.append(initial_search_term)
+        search_term = remove_quotes(response.choices[0].message['content'])
+        print(f"Generated search term: {search_term}")
+        previous_search_terms.append(search_term)
 
-    search_history.append((initial_search_term, scraped_urls[-1] if scraped_urls else '')) 
+    search_history.append((search_term, scraped_urls[-1] if scraped_urls else '')) 
 
     session['scraped_urls'] = scraped_urls
     session['previous_search_terms'] = previous_search_terms
@@ -210,7 +218,6 @@ def home():
 
     return render_template('index.html', current_response=current_response, task=task, search_history=search_history, action=action)
 
-
 @app.route("/download/<filename>", methods=['GET'])
 def download_file(filename):
     try:
@@ -219,13 +226,10 @@ def download_file(filename):
     except FileNotFoundError:
         return Response("File not found", status=404)
 
-
-
 @app.route("/clear", methods=['GET'])
 def clear_session():
     session.clear()
     return redirect(url_for('home'))
-
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
