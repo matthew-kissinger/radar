@@ -25,12 +25,8 @@ Access the web application by navigating to `http://localhost:5000` on your web 
 
 ## Usage
 1. Enter a task in the provided input field.
-2. Choose an action from the drop-down menu:
-    - Start: Begins a new task and stores the results.
-    - Next: Continues the previous task with new rounds of research.
-    - Finish: Ends the current task and provides a final report.
-3. Define the number of rounds for the task.
-4. Submit the form to initiate the autonomous research agent.
+2. Define the number of rounds for the task.
+3. Submit the form to initiate the autonomous research agent.
 
 ## Endpoints
 - `/` (GET, POST): The main application interface for starting, continuing, or finishing tasks.
@@ -44,3 +40,6 @@ The Flask application uses session data to persist information across requests a
 Reports can be downloaded from the application interface. Each report is saved in the `results` directory with a filename formatted as `<task>_result_round_<round_number>.txt`.
 
 **Note:** Always use the `.env` file to securely store your API keys and other sensitive information. This file should never be included in the repository.
+
+## License
+This project is licensed under the terms of the [MIT License](./LICENSE.md).
