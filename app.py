@@ -4,10 +4,6 @@ import requests
 import tiktoken
 import urllib.parse
 from bs4 import BeautifulSoup
-import openai
-import requests
-import tiktoken
-import urllib.parse
 import os
 import secrets
 import io
