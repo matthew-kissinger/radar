@@ -19,7 +19,7 @@ RADAR is an autonomous research agent built with Flask, OpenAI's GPT-4* model, B
 ## Running the Application
 Run the Flask application with the command:
     ```
-    python app.py
+    python run.py
     ```
 Access the web application by navigating to `http://localhost:5000` on your web browser.
 
