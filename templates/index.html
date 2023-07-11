@@ -223,45 +223,27 @@
     
     </div>
 
-    <script>
-        function setAction() {
-          var taskValue = document.getElementById('task').value;
-          if(taskValue === ""){
-              document.getElementById('action').value='start';
-          } else {
-              document.getElementById('action').value='next';
-          }
-          displayLoadingSpinner();
-      
-          // Hide filename input and save its state to localStorage
-          var filenameDiv = document.getElementById('filenameDiv');
-          filenameDiv.style.display = 'none';
-          localStorage.setItem('filenameDivState', 'none');
-        }
-      
-        function clearSession() {
-          location.href = '/clear';
-      
-          // Show filename input and save its state to localStorage
-          var filenameDiv = document.getElementById('filenameDiv');
-          filenameDiv.style.display = 'block';
-          localStorage.setItem('filenameDivState', 'block');
-        }
-      
-        function displayLoadingSpinner() {
-          var loadingOverlay = document.getElementById('loadingOverlay');
-          loadingOverlay.style.display = 'flex';
-        }
-      
-        // When the page loads or refreshes, restore the filename input visibility from localStorage
-        window.onload = function() {
-          var filenameDiv = document.getElementById('filenameDiv');
-          var filenameDivState = localStorage.getItem('filenameDivState');
-          if(filenameDivState) {
-              filenameDiv.style.display = filenameDivState;
-          }
-        }
-    </script>
+<script>
+    function setAction() {
+      var taskValue = document.getElementById('task').value;
+      if(taskValue === ""){
+          document.getElementById('action').value='start';
+      } else {
+          document.getElementById('action').value='next';
+      }
+      displayLoadingSpinner();
+    }
+  
+    function clearSession() {
+      location.href = '/clear';
+    }
+  
+    function displayLoadingSpinner() {
+      var loadingOverlay = document.getElementById('loadingOverlay');
+      loadingOverlay.style.display = 'flex';
+    }
+</script>
+
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
