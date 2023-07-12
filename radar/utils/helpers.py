@@ -9,7 +9,7 @@ def create_initial_search_message(task):
     return [
         {
             "role": "system",
-            "content": f"As an autonomous research agent, your task is: '{task}'. The current date is {current_date}. Generate an initial search term or query related to this task. The response should only contain the search term."
+            "content": f"As an autonomous research agent, your task is: '{task}'. The current date is {current_date}. Generate an initial search URL related to this task. The response should be in the format: 'URL: \"<url>\"'. Use the Brave Web Search API endpoint (https://api.search.brave.com/res/v1/web/search). Essential parameters include 'q' for query (max 400 chars, 50 words) and 'freshness' for time period ('pd' for last 24 hours, 'pw' for last 7 days, 'pm' for last month, 'py' for last year, or specific date range in 'YYYY-MM-DDtoYYYY-MM-DD' format). The freshness parameter is optional and may or may not be needed."
         }
     ]
 
@@ -17,7 +17,7 @@ def create_search_message(task, response, previous_search_terms):
     return [
         {
             "role": "system",
-            "content": f"As an autonomous research agent, your ongoing task is: '{task}', and the response so far is: '{response}'. The current date is {current_date}. Considering your previous search terms: {previous_search_terms}, generate a new unique search term that could add more depth to our current understanding. Remember, this new search should bring more light to our task. The response should only contain the search term."
+            "content": f"As an autonomous research agent, your ongoing task is: '{task}', and the response so far is: '{response}'. The current date is {current_date}. Considering your previous searches: {previous_search_terms}, generate a search URL related to this task. The response should be in the format: 'URL: \"<url>\"'. Use the Brave Web Search API endpoint (https://api.search.brave.com/res/v1/web/search). Essential parameters include 'q' for query (max 400 chars, 50 words)and 'freshness' for time period ('pd' for last 24 hours, 'pw' for last 7 days, 'pm' for last month, 'py' for last year, or specific date range in 'YYYY-MM-DDtoYYYY-MM-DD' format)"
         }
     ]
 
