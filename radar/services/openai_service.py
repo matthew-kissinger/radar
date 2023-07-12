@@ -20,7 +20,7 @@ def autonomous_agent(task, action='next'):
     if 'research_started' not in session:
         session['research_started'] = True
         initial_search_message = create_initial_search_message(task)
-        initial_search_response = call_openai_chat_model("gpt-3.5-turbo-16k", initial_search_message)
+        initial_search_response = call_openai_chat_model("gpt-4", initial_search_message)
         search_term = remove_quotes(initial_search_response.choices[0].message['content'])
     else:
         search_message = create_search_message(task, response_text, previous_search_terms)
@@ -41,7 +41,7 @@ def autonomous_agent(task, action='next'):
                 if page_content is not None:
                     if response_text == "":
                         task_message = create_task_message(task, page_content)
-                        response = call_openai_chat_model("gpt-3.5-turbo-16k", task_message)
+                        response = call_openai_chat_model("gpt-4", task_message)
                     else:
                         report_update_message = create_report_update_message(task, response_text, page_content)
                         response = call_openai_chat_model("gpt-3.5-turbo-16k", report_update_message)
