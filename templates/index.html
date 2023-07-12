@@ -46,7 +46,7 @@
             {% for search_term, url, download_url in search_history %}
             <li class="list-group-item">
                 <p class="loaded"><strong>Search #{{ loop.index }}:</strong></p>
-                <p class="loaded"><strong>Term:</strong> {{ search_term }}</p>
+                <p class="loaded"><strong>Brave API:</strong> {{ search_term }}</p>
                 <p class="loaded"><strong>URL:</strong> <a href="{{ url }}" target="_blank" class="url-link">{{ url }}</a></p>
                 <p class="loaded"><strong>Download:</strong> <a href="{{ download_url }}" target="_blank" class="url-link">Download Report</a></p>
             </li>
