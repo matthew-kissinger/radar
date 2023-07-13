@@ -1,27 +1,27 @@
-window.onload = function() {
-    var taskInput = document.getElementById('task');
-    var actionInput = document.getElementById('action');
-    var processButton = document.getElementById('processButton');
-    var clearButton = document.getElementById('clearButton'); // Define the clearButton
+document.addEventListener('DOMContentLoaded', function () {
+    let taskInputElement = document.getElementById('task');
+    let actionInputElement = document.getElementById('action');
+    const processButtonElement = document.getElementById('processButton');
+    const clearButtonElement = document.getElementById('clearButton'); 
 
-    function assignAction() {
-        if(taskInput.value === ""){
-            actionInput.value='start';
+    function setActionAccordingToTask() {
+        if(taskInputElement.value === ""){
+            actionInputElement.value = 'start';
         } else {
-            actionInput.value='next';
+            actionInputElement.value = 'next';
         }
-        displayLoadingSpinner();
+        showLoadingSpinner();
     }
 
-    function displayLoadingSpinner() {
-        var loadingOverlay = document.getElementById('loadingOverlay');
-        loadingOverlay.style.display = 'flex';
+    function showLoadingSpinner() {
+        let loadingOverlayElement = document.getElementById('loadingOverlay');
+        loadingOverlayElement.style.display = 'flex';
     }
-  
-    function redirectToClearSession() {
+
+    function navigateToClearSession() {
         window.location.href = '/clear';
     }
 
-    processButton.addEventListener('click', assignAction);
-    clearButton.addEventListener('click', redirectToClearSession);
-}
+    processButtonElement.addEventListener('click', setActionAccordingToTask);
+    clearButtonElement.addEventListener('click', navigateToClearSession);
+});
